@@ -29,34 +29,38 @@ import {TeethCsv} from "../../storage/csvs/TeethCsv";
 import {TemperatureCsv} from "../../storage/csvs/TemperatureCsv";
 import {VaccinationCsv} from "../../storage/csvs/VaccinationCsv";
 
-export const defaultAppDataZipCreator = (): AppDataAdmZipCreator => new AppDataAdmZipCreator(
-    BabyCsv.create(),
-    BabyDateOfBirthCsv.create(),
-    BabyImageCsv.create(),
-    ExcretionNotificationTriggerCsv.create(),
-    PumpingCsv.create(),
-    PumpingNotificationTriggerCsv.create(),
-    PumpingTimeOfDayNotificationTriggerCsv.create(),
-    SleepCsv.create(),
-    SleepingNotificationTriggerCsv.create(),
-    TeethCsv.create(),
-    TemperatureCsv.create(),
-    VaccinationCsv.create(),
-    JournalEntryCsv.create(),
-    FeedCsv.create(),
-    ExcretionCsv.create(),
-    MedicineCsv.create(),
-    PauseCsv.create(),
-    GrowthCsv.create(),
-    SleepingsTimeOfDayNotificationTriggerCsv.create(),
-    MedicineRecordCsv.create(),
-    ExcretionTimeOfDayNotificationTriggerCsv.create(),
-    FeedingNotificationTriggerCsv.create(),
-    FeedingTimeOfDayNotificationTriggerCsv.create(),
-    GeneralNotesNotificationTriggerCsv.create(),
-    GeneralNotesTimeOfDayNotificationTriggerCsv.create(),
-    MedicationRecordsNotificationTriggerCsv.create(),
-    MedicationRecordsTimeOfDayNotificationTriggerCsv.create(),
-    new SyncDeviceIdCsv(),
-    new BabyImageBinary(),
-);
+export const defaultAppDataZipCreator = (): AppDataAdmZipCreator => {
+    const creator = new AppDataAdmZipCreator();
+
+    creator.addFileSaver(BabyCsv.create(), (data => data.babies));
+    creator.addFileSaver(BabyDateOfBirthCsv.create(), (data => data.babyDateOfBirth));
+    creator.addFileSaver(BabyImageCsv.create(), (data => data.babyImages));
+    creator.addFileSaver(ExcretionNotificationTriggerCsv.create(), (data => data.excretionNotificationTriggers));
+    creator.addFileSaver(PumpingCsv.create(), (data => data.pumpings));
+    creator.addFileSaver(PumpingNotificationTriggerCsv.create(), (data => data.pumpingNotificationTriggers));
+    creator.addFileSaver(PumpingTimeOfDayNotificationTriggerCsv.create(), (data => data.pumpingTimeOfDayNotificationTriggers));
+    creator.addFileSaver(SleepCsv.create(), (data => data.sleeps));
+    creator.addFileSaver(SleepingNotificationTriggerCsv.create(), (data => data.sleepingNotificationTriggers));
+    creator.addFileSaver(TeethCsv.create(), (data => data.teeths));
+    creator.addFileSaver(TemperatureCsv.create(), (data => data.temperatures));
+    creator.addFileSaver(VaccinationCsv.create(), (data => data.vaccinations));
+    creator.addFileSaver(JournalEntryCsv.create(), (data => data.journalEntries));
+    creator.addFileSaver(FeedCsv.create(), (data => data.feeds));
+    creator.addFileSaver(ExcretionCsv.create(), (data => data.excretions));
+    creator.addFileSaver(MedicineCsv.create(), (data => data.medicines));
+    creator.addFileSaver(PauseCsv.create(), (data => data.pauses));
+    creator.addFileSaver(GrowthCsv.create(), (data => data.growths));
+    creator.addFileSaver(SleepingsTimeOfDayNotificationTriggerCsv.create(), (data => data.sleepingsTimeOfDayNotificationTriggers));
+    creator.addFileSaver(MedicineRecordCsv.create(), (data => data.medicineRecords));
+    creator.addFileSaver(ExcretionTimeOfDayNotificationTriggerCsv.create(), (data => data.excretionTimeOfDayNotificationTriggers));
+    creator.addFileSaver(FeedingNotificationTriggerCsv.create(), (data => data.feedingNotificationTriggers));
+    creator.addFileSaver(FeedingTimeOfDayNotificationTriggerCsv.create(), (data => data.feedingTimeOfDayNotificationTriggers));
+    creator.addFileSaver(GeneralNotesNotificationTriggerCsv.create(), (data => data.generalNotesNotificationTriggers));
+    creator.addFileSaver(GeneralNotesTimeOfDayNotificationTriggerCsv.create(), (data => data.generalNotesTimeOfDayNotificationTriggers));
+    creator.addFileSaver(MedicationRecordsNotificationTriggerCsv.create(), (data => data.medicationRecordsNotificationTriggers));
+    creator.addFileSaver(MedicationRecordsTimeOfDayNotificationTriggerCsv.create(), (data => data.medicationRecordsTimeOfDayNotificationTriggers));
+    creator.addFileSaver(new SyncDeviceIdCsv(), (_ => _));
+    creator.addFileSaver(new BabyImageBinary(), (_ => _));
+
+    return creator;
+};
