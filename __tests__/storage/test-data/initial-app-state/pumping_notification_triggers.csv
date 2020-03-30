@@ -1,0 +1,4 @@
+id, repeatingAlarm, pumping_side, notification_duration_in_milliseconds
+1,0,LEFT,10800000
+2,0,RIGHT,10800000
+3,1,LEFT_OR_RIGHT,10830000

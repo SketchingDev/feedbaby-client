@@ -1,0 +1,3 @@
+id, repeatingAlarm, excretion_type, notification_duration_in_milliseconds
+1,0,PEE,10800000
+2,0,POO,10800000
