@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {PumpingTimeOfDayNotificationTrigger} from "../../client/models/PumpingTimeOfDayNotificationTrigger";
+import {PumpingTimeOfDayNotificationTrigger} from "../../models/PumpingTimeOfDayNotificationTrigger";
 
 export class PumpingTimeOfDayNotificationTriggerCsv extends CsvFile<PumpingTimeOfDayNotificationTrigger> {
     private static readonly HEADERS: Array<keyof PumpingTimeOfDayNotificationTrigger> = [

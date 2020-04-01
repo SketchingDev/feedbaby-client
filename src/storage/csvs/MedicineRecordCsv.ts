@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {MedicineRecord} from "../../client/models/MedicineRecord";
+import {MedicineRecord} from "../../models/MedicineRecord";
 
 export class MedicineRecordCsv extends CsvFile<MedicineRecord> {
     private static readonly HEADERS: Array<keyof MedicineRecord> = [

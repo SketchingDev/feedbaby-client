@@ -1,14 +1,18 @@
 import {AxiosInstance} from "axios";
 import * as url from "url";
-import {Feed} from "./models/Feed";
+import {Feed} from "../models/Feed";
 import FormData from "form-data";
 import {defaultAndroidHttpClientFactory} from "./defaults/defaultAndroidHttpClientFactory";
 import {defaultAppDataZipCreator} from "./defaults/defaultAppDataZipCreator";
 import {AppData} from "./AppData";
 import {defaultAppDataZipReader} from "./defaults/defaultAppDataZipReader";
 import {v4 as uuidv4} from "uuid";
-import {Growth} from "./models/Growth";
-import {Medicine} from "./models/Medicine";
+import {Growth} from "../models/Growth";
+import {Medicine} from "../models/Medicine";
+import {AuthParameters} from "./parameters/AuthParameters";
+import {DeviceParameters} from "./parameters/DeviceParameters";
+import {BaseParameters} from "./parameters/BaseParameters";
+import {SyncParameters} from "./parameters/SyncParameters";
 
 export type HttpClientFactory = (baseUrl: string) => AxiosInstance;
 
@@ -18,23 +22,23 @@ export class Device {
     }
 
     constructor(public readonly id: string) {
-        if (!id){
-            throw new Error("Device ID must be provided");
-        }
     }
 }
 
-export interface SyncAuth {
+export interface Authentication {
     /**
-     * Alphanumeric PassPhrase used by all devices sharing the data
+     * Alphanumeric string used by all devices sharing the data
      */
-    passphrase: string;
-    dateOfBirth: Date;
+    readonly passphrase: string;
+    /**
+     * Date of birth used by all devices sharing the data
+     */
+    readonly dateOfBirth: Date;
 }
 
 export interface Version {
-    version: string;
-    date: Date;
+    readonly version: string;
+    readonly dateOfLastSync: Date;
 }
 
 export interface AppDataZip {
@@ -53,7 +57,6 @@ export interface AppDataZipCreator {
 }
 
 export class FeedBabyClient {
-
     private static readonly HOST: string = "http://www.feedbaby.com.au/";
     private static readonly BASE_PATH: string = "feedbabysync_v12";
 
@@ -63,6 +66,11 @@ export class FeedBabyClient {
     private static readonly REGISTER_DEVICE_TOKEN_ENDPOINT = "/registerDeviceToken";
 
     private client: AxiosInstance;
+    private readonly baseParameters = new BaseParameters();
+    private readonly syncParameters = new SyncParameters();
+    private readonly authParameters = new AuthParameters();
+    private readonly deviceParameters = new DeviceParameters();
+
 
     constructor(readonly host: string = FeedBabyClient.HOST,
                 readonly httpClientFactory: HttpClientFactory = defaultAndroidHttpClientFactory,
@@ -71,80 +79,56 @@ export class FeedBabyClient {
         this.client = httpClientFactory(url.resolve(host, FeedBabyClient.BASE_PATH))
     }
 
-    private static getBaseParameters(): { [key: string]: string | number } {
-        return {
-            product: "pro",
-            serverVersionCode: 1,
-            flavor: "lite"
-        }
-    }
-
-    private static createAuthParameters(syncAuth: SyncAuth): { [key: string]: string } {
-        const pad = (value: number): string => ('0' + value).slice(-2);
-        const paddedMonth = (date: Date): string => pad(date.getMonth() + 1);
-        const paddedDay = (date: Date): string => pad(date.getDate());
-
-        return {
-            "passphrase": syncAuth.passphrase,
-            "dob_year": `${syncAuth.dateOfBirth.getFullYear()}`,
-            "dob_month": paddedMonth(syncAuth.dateOfBirth),
-            "dob_day": paddedDay(syncAuth.dateOfBirth),
-        }
-    }
-
     public async ping(): Promise<boolean> {
+        let pingMessage = "";
         try {
             const response = await this.client.get<string>(
                 FeedBabyClient.PING_ENDPOINT,
-                {params: FeedBabyClient.getBaseParameters()}
+                {params: this.baseParameters.create()}
             );
-            if (response.data === "success") {
-                return true;
-            }
+            pingMessage = response.data;
         } catch (error) {
             console.error("Ping failed", {error});
         }
-        return false;
+
+        return (pingMessage === "success");
     }
 
-    // TODO Should this actually be named 'dateOfLastSync'
-    // TODO Check if this is date of sync
-    // TODO What does the app do if the passphrase contains invalid URL characters like question mark
-    public async checkVersion(syncAuth: SyncAuth): Promise<Version> {
-        if (!syncAuth.passphrase) {
-            throw new Error("Authentication passphrase must be defined");
-        }
-
+    /**
+     * Determines the latest 'version' synchronisation, which is just a unix timestamp of the last sync.
+     *
+     * Contrary to what I thought this is not the same date returned in the Date header of the merge.
+     */
+    public async checkVersion(authentication: Authentication): Promise<Version> {
         const params = {
-            ...FeedBabyClient.getBaseParameters(),
-            ...FeedBabyClient.createAuthParameters(syncAuth),
-            "handle_unsaved_changes": "PREFER_SERVER_DATA",
-            "sync_version": 17
+            ...this.baseParameters.create(),
+            ...this.authParameters.create(authentication),
+            ...this.syncParameters.create(),
         };
 
-        const response = await this.client.get<number>(
+        const {data} = await this.client.get<number>(
             FeedBabyClient.CHECK_VERSION_ENDPOINT,
             {params}
         );
 
-        return {
-            version: `${response.data}`,
-            date: new Date(response.data)
+        try {
+            return {
+                version: `${data}`,
+                dateOfLastSync: new Date(data)
+            }
+        } catch (err) {
+            throw new Error(`API replied with value that is not a date: ${data}`);
         }
+
     }
 
-    public async registerDevice(syncAuth: SyncAuth, device: Device, deviceToken: string): Promise<string> {
-        if (!syncAuth.passphrase) {
-            throw new Error("Authentication passphrase must be defined");
-        }
-
+    public async registerDevice(syncAuth: Authentication, device: Device, deviceToken: string): Promise<string> {
         const params = {
-            ...FeedBabyClient.getBaseParameters(),
-            ...FeedBabyClient.createAuthParameters(syncAuth),
-            "handle_unsaved_changes": "PREFER_SERVER_DATA",
-            "sync_version": 17,
+            ...this.baseParameters.create(),
+            ...this.syncParameters.create(),
+            ...this.authParameters.create(syncAuth),
+            ...this.deviceParameters.create(device),
             deviceToken,
-            "sync_device_id": device.id
         };
 
         const response = await this.client.get<string>(
@@ -167,27 +151,22 @@ export class FeedBabyClient {
      *
      * @return Returns the merged sync
      */
-    public async merge(syncAuth: SyncAuth, device: Device, zip?: Buffer): Promise<AppDataZip> {
-        if (!syncAuth.passphrase) {
-            throw new Error("Authentication passphrase must be defined");
-        }
-
+    public async merge(auth: Authentication, device: Device, zip?: Buffer): Promise<AppDataZip> {
         if (!zip) {
             zip = this.createZipFromAppFirstStart();
         }
 
-        const responseZip = await this.mergeZip(syncAuth, device, zip);
+        const responseZip = await this.mergeZip(auth, device, zip);
         return this.appDataReader.read(responseZip);
     }
 
-    private async mergeZip(syncAuth: SyncAuth, device: Device, zip: Buffer): Promise<Buffer> {
+    private async mergeZip(auth: Authentication, device: Device, zip: Buffer): Promise<Buffer> {
         const params = {
-            ...FeedBabyClient.getBaseParameters(),
-            ...FeedBabyClient.createAuthParameters(syncAuth),
-            "handle_unsaved_changes": "PREFER_SERVER_DATA",
-            "sync_version": 17,
+            ...this.baseParameters.create(),
+            ...this.syncParameters.create(),
+            ...this.authParameters.create(auth),
+            ...this.deviceParameters.create(device),
             "lastSyncFinishedStatus": "FINISHED",
-            "sync_device_id": device.id
         };
 
         const form = new FormData();
@@ -198,16 +177,21 @@ export class FeedBabyClient {
 
         const formHeaders = form.getHeaders();
 
-        const response = await this.client.post<Buffer>(FeedBabyClient.MERGE_ENDPOINT, form, {
-            responseType: 'arraybuffer',
-            params,
-            headers: {
-                ...formHeaders,
-                "Accept-Encoding": "gzip",
-            },
-        });
+        try {
+            const response = await this.client.post<Buffer>(FeedBabyClient.MERGE_ENDPOINT, form, {
+                responseType: 'arraybuffer',
+                params,
+                headers: {
+                    ...formHeaders,
+                    "Accept-Encoding": "gzip",
+                },
+            });
 
-        return response.data
+            return response.data
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
     }
 
     private createZipFromAppFirstStart(): Buffer {

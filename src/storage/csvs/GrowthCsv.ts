@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {Growth} from "../../client/models/Growth";
+import {Growth} from "../../models/Growth";
 
 export class GrowthCsv extends CsvFile<Growth> {
     private static readonly HEADERS: Array<keyof Growth> = [

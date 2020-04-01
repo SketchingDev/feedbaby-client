@@ -1,8 +1,8 @@
 import AdmZip from "adm-zip";
 import {AppDataZip, AppDataZipReader} from "../client/FeedBabyClient";
-import {Feed} from "../client/models/Feed";
-import {Growth} from "../client/models/Growth";
-import {Medicine} from "../client/models/Medicine";
+import {Feed} from "../models/Feed";
+import {Growth} from "../models/Growth";
+import {Medicine} from "../models/Medicine";
 import {ReadableFile} from "./CsvFile";
 
 export class AppDataAdmZip implements AppDataZip {

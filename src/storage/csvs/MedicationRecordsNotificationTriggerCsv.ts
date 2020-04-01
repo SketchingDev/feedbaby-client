@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {MedicationRecordsNotificationTrigger} from "../../client/models/MedicationRecordsNotificationTrigger";
+import {MedicationRecordsNotificationTrigger} from "../../models/MedicationRecordsNotificationTrigger";
 
 export class MedicationRecordsNotificationTriggerCsv extends CsvFile<MedicationRecordsNotificationTrigger> {
     private static readonly HEADERS: Array<keyof MedicationRecordsNotificationTrigger> = [

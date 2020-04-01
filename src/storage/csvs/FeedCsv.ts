@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {Feed} from "../../client/models/Feed";
+import {Feed} from "../../models/Feed";
 
 export class FeedCsv extends CsvFile<Feed> {
     private static readonly HEADERS: Array<keyof Feed> = [

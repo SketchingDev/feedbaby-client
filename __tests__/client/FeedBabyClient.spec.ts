@@ -1,4 +1,4 @@
-import {Device, FeedBabyClient, SyncAuth} from "../../src";
+import {Device, FeedBabyClient, Authentication} from "../../src";
 import nock from "nock";
 import {readFileSync} from "fs";
 import * as path from "path";
@@ -42,38 +42,38 @@ describe("Client", () => {
 
         const dateOfBirth = new Date('2019/6/9');
 
-        await feedBabyClient.checkVersion({passphrase: 'secret-code', dateOfBirth});
+        await feedBabyClient.checkVersion({passphrase: 'SecretCode', dateOfBirth});
         expect(mockHttpClient.get).toHaveBeenCalledWith(expect.anything(),
             {"params": expect.objectContaining({"dob_day": "09", "dob_month": "06", "dob_year": "2019"})}
         );
     });
 
     test("checkVersion returns version", async () => {
-        const auth: SyncAuth = {
-            passphrase: 'secret-code',
+        const auth: Authentication = {
+            passphrase: 'SecretCode2',
             dateOfBirth: new Date('2019/6/19')
         };
 
         nock(testHost)
-            .get(`/feedbabysync_v12/checkversion?product=pro&serverVersionCode=1&flavor=lite&passphrase=secret-code&dob_year=2019&dob_month=06&dob_day=19&handle_unsaved_changes=PREFER_SERVER_DATA&sync_version=17`)
+            .get(`/feedbabysync_v12/checkversion?product=pro&serverVersionCode=1&flavor=lite&passphrase=SecretCode2&dob_year=2019&dob_month=06&dob_day=19&handle_unsaved_changes=PREFER_SERVER_DATA&sync_version=17`)
             .reply(200, "1584119903044", serverHeaders);
 
         const response = await feedBabyClient.checkVersion(auth);
 
         expect(response).toMatchObject({version: "1584119903044"});
-        expect(response.date).toStrictEqual(new Date("2020-03-13T17:18:23.044Z"))
+        expect(response.dateOfLastSync).toStrictEqual(new Date("2020-03-13T17:18:23.044Z"))
     });
 
     test("Register Device Token", async () => {
         const device = new Device("test-sync-device-id");
         const deviceToken = "test-device-token";
-        const auth: SyncAuth = {
-            passphrase: "test-passphrase",
+        const auth: Authentication = {
+            passphrase: "SecretCode3",
             dateOfBirth: new Date('2020/3/24')
         };
 
         nock(testHost)
-            .get(`/feedbabysync_v12/registerDeviceToken?product=pro&serverVersionCode=1&flavor=lite&passphrase=test-passphrase&dob_year=2020&dob_month=03&dob_day=24&handle_unsaved_changes=PREFER_SERVER_DATA&sync_version=17&deviceToken=test-device-token&sync_device_id=test-sync-device-id`)
+            .get(`/feedbabysync_v12/registerDeviceToken?product=pro&serverVersionCode=1&flavor=lite&passphrase=SecretCode3&dob_year=2020&dob_month=03&dob_day=24&handle_unsaved_changes=PREFER_SERVER_DATA&sync_version=17&deviceToken=test-device-token&sync_device_id=test-sync-device-id`)
             .reply(200, "7\nsuccess\n0", serverHeaders);
 
         const response = await feedBabyClient.registerDevice(auth, device, deviceToken);
@@ -82,13 +82,13 @@ describe("Client", () => {
 
     test("Merge", async () => {
         const device = Device.create();
-        const auth: SyncAuth = {
-            passphrase: 'test-passphrase',
+        const auth: Authentication = {
+            passphrase: 'SecretCode4',
             dateOfBirth: new Date('2020/3/25')
         };
 
         nock(testHost)
-            .post(`/feedbabysync_v12/merge?product=pro&serverVersionCode=1&flavor=lite&passphrase=test-passphrase&dob_year=2020&dob_month=03&dob_day=25&handle_unsaved_changes=PREFER_SERVER_DATA&sync_version=17&lastSyncFinishedStatus=FINISHED&sync_device_id=${device.id}`,
+            .post(`/feedbabysync_v12/merge?product=pro&serverVersionCode=1&flavor=lite&passphrase=SecretCode4&dob_year=2020&dob_month=03&dob_day=25&handle_unsaved_changes=PREFER_SERVER_DATA&sync_version=17&lastSyncFinishedStatus=FINISHED&sync_device_id=${device.id}`,
                 (body: string) => {
                     body = Buffer.from(body, 'hex').toString('utf8');
 

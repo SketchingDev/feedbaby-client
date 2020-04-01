@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {Sleep} from "../../client/models/Sleep";
+import {Sleep} from "../../models/Sleep";
 
 export class SleepCsv extends CsvFile<Sleep> {
     private static readonly HEADERS: Array<keyof Sleep> = [

@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {ExcretionNotificationTrigger} from "../../client/models/ExcretionNotificationTrigger";
+import {ExcretionNotificationTrigger} from "../../models/ExcretionNotificationTrigger";
 
 export class ExcretionNotificationTriggerCsv extends CsvFile<ExcretionNotificationTrigger> {
     private static readonly HEADERS: Array<keyof ExcretionNotificationTrigger> = [

@@ -1,2 +1,2 @@
-export {FeedBabyClient, SyncAuth, Device} from "./client/FeedBabyClient";
+export {FeedBabyClient, Authentication, Device} from "./client/FeedBabyClient";
 

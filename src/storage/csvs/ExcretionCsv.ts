@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {Excretion} from "../../client/models/Excretion";
+import {Excretion} from "../../models/Excretion";
 
 export class ExcretionCsv extends CsvFile<Excretion> {
     private static readonly HEADERS: Array<keyof Excretion> = [

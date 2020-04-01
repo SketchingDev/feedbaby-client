@@ -1,6 +1,6 @@
 import {CsvFile} from "../CsvFile";
 import {Parser} from "json2csv";
-import {SleepingNotificationTrigger} from "../../client/models/SleepingNotificationTrigger";
+import {SleepingNotificationTrigger} from "../../models/SleepingNotificationTrigger";
 
 export class SleepingNotificationTriggerCsv extends CsvFile<SleepingNotificationTrigger> {
     private static readonly HEADERS: Array<keyof SleepingNotificationTrigger> = [
