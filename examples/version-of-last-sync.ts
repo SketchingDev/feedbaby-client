@@ -1,7 +1,7 @@
-import {FeedBabyClient, SyncAuth} from "../lib";
+import {FeedBabyClient, Authentication} from "../lib";
 
-// UPDATE WITH YOUR SYNC DETAILS
-const auth: SyncAuth = {
+// UPDATE THIS: Update this with your App's sync details
+const auth: Authentication = {
     passphrase: '',
     dateOfBirth: new Date(),
 };

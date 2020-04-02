@@ -100,6 +100,8 @@ export class FeedBabyClient {
      * Contrary to what I thought this is not the same date returned in the Date header of the merge.
      */
     public async checkVersion(authentication: Authentication): Promise<Version> {
+        this.authParameters.validate(authentication);
+
         const params = {
             ...this.baseParameters.create(),
             ...this.authParameters.create(authentication),
@@ -122,11 +124,14 @@ export class FeedBabyClient {
 
     }
 
-    public async registerDevice(syncAuth: Authentication, device: Device, deviceToken: string): Promise<string> {
+    public async registerDevice(auth: Authentication, device: Device, deviceToken: string): Promise<string> {
+        this.authParameters.validate(auth);
+        this.deviceParameters.validate(device);
+
         const params = {
             ...this.baseParameters.create(),
             ...this.syncParameters.create(),
-            ...this.authParameters.create(syncAuth),
+            ...this.authParameters.create(auth),
             ...this.deviceParameters.create(device),
             deviceToken,
         };
@@ -152,6 +157,9 @@ export class FeedBabyClient {
      * @return Returns the merged sync
      */
     public async merge(auth: Authentication, device: Device, zip?: Buffer): Promise<AppDataZip> {
+        this.authParameters.validate(auth);
+        this.deviceParameters.validate(device);
+
         if (!zip) {
             zip = this.createZipFromAppFirstStart();
         }
