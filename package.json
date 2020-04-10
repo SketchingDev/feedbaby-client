@@ -5,12 +5,24 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SketchingDev/feedbaby-client.git"
+  },
+  "homepage": "https://github.com/SketchingDev/feedbaby-client#feedbaby-client-library",
+  "bugs": {
+    "url": "https://github.com/SketchingDev/feedbaby-client/issues"
+  },
+  "files": ["lib/**/*"],
+  "keywords": ["feedbaby"],
   "scripts": {
     "clean": "yarn rimraf ./lib",
     "copy-assets": "yarn copyfiles -u 1 src/storage/csvs/image/baby_images_image_no_image lib",
-    "build": "tsc && yarn copy-assets",
+    "build": "yarn clean&& tsc && yarn copy-assets",
     "lint": "yarn eslint . --ext .ts",
-    "test": "jest"
+    "test": "jest",
+    "prepare" : "yarn build",
+    "prepublishOnly" : "yarn lint && yarn test"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.4.32",
