@@ -9,12 +9,12 @@
     "type": "git",
     "url": "git+https://github.com/SketchingDev/feedbaby-client.git"
   },
-  "homepage": "https://github.com/SketchingDev/feedbaby-client#feedbaby-client-library",
+  "homepage": "https://github.com/SketchingDev/feedbaby-client",
   "bugs": {
     "url": "https://github.com/SketchingDev/feedbaby-client/issues"
   },
   "files": ["lib/**/*"],
-  "keywords": ["feedbaby"],
+  "keywords": ["feedbaby", "client"],
   "scripts": {
     "clean": "yarn rimraf ./lib",
     "copy-assets": "yarn copyfiles -u 1 src/storage/csvs/image/baby_images_image_no_image lib",
