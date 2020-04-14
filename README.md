@@ -24,6 +24,26 @@ Unfortunately FeedBaby's API doesn't make it possible to read your data without 
 because the endpoint for downloading your baby's data also requires you to upload it - except for the first
 time a new device downloads the data.
 
+## Usage
+
+Examples can be found in [./examples](./examples).
+
+```ts
+const auth: Authentication = {
+    passphrase: 'example',
+    dateOfBirth: new Date('10-10-2019'),
+};
+
+const feedBaby = new FeedBabyClient();
+feedBaby.ping().then(async () => {
+    const newDevice = Device.create();
+    const mergedData = await feedBaby.merge(auth, newDevice);
+
+    const medicines = await mergedData.getMedicines();
+    console.log("Medicines", medicines);
+});
+```
+
 ## Development
 
 ### How to publish a release
