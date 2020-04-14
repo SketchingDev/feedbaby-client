@@ -71,7 +71,6 @@ export class FeedBabyClient {
     private readonly authParameters = new AuthParameters();
     private readonly deviceParameters = new DeviceParameters();
 
-
     constructor(readonly host: string = FeedBabyClient.HOST,
                 readonly httpClientFactory: HttpClientFactory = defaultAndroidHttpClientFactory,
                 private readonly appDataCreator: AppDataZipCreator = defaultAppDataZipCreator(),
@@ -121,7 +120,6 @@ export class FeedBabyClient {
         } catch (err) {
             throw new Error(`API replied with value that is not a date: ${data}`);
         }
-
     }
 
     public async registerDevice(auth: Authentication, device: Device, deviceToken: string): Promise<string> {
